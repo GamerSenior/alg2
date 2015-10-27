@@ -20,6 +20,18 @@ void gotoxy(int xpos, int ypos){
     SetConsoleCursorPosition(hOuput,scrn);
 }
 
+typedef struct{
+    char nome[50];
+    long int rg;
+    char cpf[11];
+    unsigned short idade;
+    float alt;
+}REGISTRO;
+
+REGISTRO dados;
+
+void cadastro(REGISTRO *);
+
 int main(){
     short opc = 1, spc;
     char path[] = "data/";
@@ -27,16 +39,6 @@ int main(){
     setlocale(LC_ALL, "Portuguese");
     char c=1;
     short x = 0, y = 1;
-
-    typedef struct{
-        char nome[50];
-        long int rg;
-        long int cpf;
-        unsigned short idade;
-        float alt;
-
-    }registro;
-    registro dados;
 
     FILE *data;
 
@@ -100,6 +102,47 @@ int main(){
                 getch();
                 clear
             }
+
+            if(c == 13){
+                switch(opc){
+                case 1:
+                    cadastro(&dados);
+                    puts(dados.nome);
+                    printf("%ld\n", dados.rg);
+                    puts(dados.cpf);
+                    fwrite(&dados, sizeof(dados), 1, data);
+                    break;
+
+                case 2:
+                    break;
+
+                case 3:
+                    break;
+
+                case 4:
+                    break;
+
+                case 6:
+                    exit(1);
+                    break;
+                }
+            }
+
         }while(c);
     }while(c != 27);
+}
+
+cadastro(REGISTRO *dados){
+    clear
+    printf("-----REGISTRO DE DADOS-----\nNome: ");
+    fgets(dados->nome, sizeof(dados->nome), stdin);
+    printf("RG: ");
+    scanf("%ld", &dados->rg);
+    fflush(stdin);
+    printf("CPF: ");
+    fgets(dados->cpf, sizeof(dados->cpf), stdin);
+    printf("Altura: ");
+    scanf("%f", &dados->alt);
+    printf("Idade: ");
+    scanf("%hd", &dados->idade);
 }
