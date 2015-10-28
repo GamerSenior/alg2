@@ -22,37 +22,36 @@ void gotoxy(int xpos, int ypos){
 #include <curses.h>
 #include <termios.h>
 #include <unistd.h>
-#include <fcnt1.h>
+#include <fcntl.h>
+#include <stropts.h>
+#include <sys/select.h>
 void gotoxy(int xpos, int ypos){
     move(xpos, ypos);
 }
 
-int kbhit(void)
+static int kbhit(void)
 {
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
- 
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
- 
-  ch = getchar();
- 
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
- 
-  if(ch != EOF)
-  {
-    ungetc(ch, stdin);
-    return 1;
-  }
- 
-  return 0;
+    struct timeval timeout;
+    fd_set read_handles;
+    int status;
+
+    raw();
+/* check stdin (fd 0) for activity */
+    FD_ZERO(&read_handles);
+    FD_SET(0, &read_handles);
+    timeout.tv_sec = timeout.tv_usec = 0;
+    status = select(0 + 1, &read_handles, NULL, NULL, &timeout);
+    if(status < 0)
+    {
+        printf("select() failed in kbhit()\n");
+        exit(1);
+    }
+    return status;
 }
+initscrn();
+raw();
+noecho();
+
 #define limpa system("clear");
 #else
 #error "Sistema não suportado"
@@ -70,7 +69,7 @@ typedef struct{
 
 REGISTRO dados;
 
-void cadastro(REGISTRO *);
+void cadastro(REGISTRO *dados);
 
 int main(){
     short opc = 1, spc;
@@ -82,13 +81,13 @@ int main(){
 
     FILE *data;
 
-    if(!mkdir(path, "ACCESSPERMS")){
+    if(!mkdir(path, 0777)){
         printf("Pasta \"data\" nao encontrada.\nCriando diretório...\n");
     }
 
-    if(!fopen(pathA, "r+")){
+    if((data = fopen(pathA, "r+"))==NULL){
         printf("Não foi possivel encontrar o arquivo dados.bin!\nUm novo arquivo será criado...\n");
-        if(!fopen(pathA, "w+")){
+        if((data = fopen(pathA, "w+"))==NULL){
             printf("Não foi possivel criar o arquivo.\nO programa será finalizado em breve!\n");
             exit(1);
         }
@@ -171,7 +170,7 @@ int main(){
     }while(c != 27);
 }
 
-cadastro(REGISTRO *dados){
+void cadastro(REGISTRO *dados){
     limpa
     printf("-----REGISTRO DE DADOS-----\nNome: ");
     fgets(dados->nome, sizeof(dados->nome), stdin);
