@@ -4,21 +4,61 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <locale.h>
+
+//SE FOR EXECUTADO EM WINDOWS
 #ifdef _WIN32
 #include <Windows.h>
-#else
-#error "Sistema não suportado"
-#endif
-#define clear system("cls");
-#define MIN 1
-#define MAX 6
-
 void gotoxy(int xpos, int ypos){
     COORD scrn;
     HANDLE hOuput = GetStdHandle(STD_OUTPUT_HANDLE);
     scrn.X = xpos; scrn.Y = ypos;
     SetConsoleCursorPosition(hOuput,scrn);
 }
+#define limpa system("cls");
+
+//SE FOR EXECUTADO EM LINUX
+#elif __linux__
+#include <ncurses.h>
+#include <curses.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcnt1.h>
+void gotoxy(int xpos, int ypos){
+    move(xpos, ypos);
+}
+
+int kbhit(void)
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+ 
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+ 
+  ch = getchar();
+ 
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+ 
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+ 
+  return 0;
+}
+#define limpa system("clear");
+#else
+#error "Sistema não suportado"
+#endif
+#define MIN 1
+#define MAX 6
 
 typedef struct{
     char nome[50];
@@ -50,12 +90,11 @@ int main(){
         printf("Não foi possivel encontrar o arquivo dados.bin!\nUm novo arquivo será criado...\n");
         if(!fopen(pathA, "w+")){
             printf("Não foi possivel criar o arquivo.\nO programa será finalizado em breve!\n");
-            Sleep(2000);
             exit(1);
         }
     }
 
-    clear
+    limpa
     do{
         x = 0; y = 1; c = 1;
         printf("-----DATABASE EVIL CORP-----\n");
@@ -95,12 +134,12 @@ int main(){
             }
             //Menu de Ajuda
             if(c == 59 && spc == 1){
-                clear
+                limpa
                 printf("MENU DE AJUDA");
 
                 c=0; opc = 1; x = 0; y = 0;
                 getch();
-                clear
+                limpa
             }
 
             if(c == 13){
@@ -133,7 +172,7 @@ int main(){
 }
 
 cadastro(REGISTRO *dados){
-    clear
+    limpa
     printf("-----REGISTRO DE DADOS-----\nNome: ");
     fgets(dados->nome, sizeof(dados->nome), stdin);
     printf("RG: ");
