@@ -82,14 +82,15 @@ int main(){
 
 			if(c == '\n'){
 				switch(opc){
-					case 1:
+					case 2:
 						erase();
 						cadastro(&dados);
+						fwrite(&dados, sizeof(dados), 1, data);
 						getch();
 						opc=0;
 					break;
 
-					case 2:
+					case 3:
 						erase();
 						printw("TESTE");
 						getch();
@@ -138,16 +139,18 @@ int main(){
 
 void cadastro(REGISTRO *dados){
 	erase();
+	echo();
 	mvprintw(0, 0, "-----REGISTRO DE DADOS-----\nNome: ");
 	refresh();
-    fgets(dados->nome, sizeof(dados->nome), stdin);
+    getnstr(dados->nome, sizeof(dados->nome));
     printw("RG: ");
-    scanf("%ld", &dados->rg);
+    scanw("%ld", &dados->rg);
     fflush(stdin);
     printw("CPF: ");
-    fgets(dados->cpf, sizeof(dados->cpf), stdin);
+    getnstr(dados->cpf, sizeof(dados->cpf));
     printw("Altura: ");
-    scanf("%f", &dados->alt);
+    scanw("%f", &dados->alt);
     printw("Idade: ");
-    scanf("%hd", &dados->idade);
+    scanw("%hd", &dados->idade);
+    noecho();
 }
