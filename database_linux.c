@@ -52,10 +52,12 @@ int main(){
 	do{
 		erase();
 		mvprintw(0,0,"-----DATABASE EVIL CORP-----\n");
-		printw("1. Cadastro\n2. Whatever\n3. Whatever\n4. Whatever\n5. Whatever\n6. Whatever");
+		printw("1. Cadastro\n2. Whatever\n3. Whatever\n4. Whatever\n5. Whatever\n6. Whatever\n");
 		x = 0; y = 1; opc = 1;
 		refresh();
 		do{
+			mvprintw(7,0,"OPC: %hd", opc);
+			mvprintw(8,0,"C: %hd", c);
 			move(y,x);
 			c = getch();
 
@@ -70,6 +72,31 @@ int main(){
 				x = 0, y = 1, opc = 0;
 				refresh();
 				getch();
+			}
+
+			if(c == '\n'){
+				switch(opc){
+					case 1:
+						erase();
+						cadastro(&dados);
+						getch();
+						opc=0;
+					break;
+
+					case 2:
+						erase();
+						printw("TESTE");
+						getch();
+						opc=0;
+					break;
+
+					default:
+						erase();
+						mvprintw(0,0, "Opcao invalida ou ainda em construcao.");
+						getch();
+						opc=0;
+					break;
+				}
 			}
 
 			switch(c){
@@ -96,18 +123,6 @@ int main(){
 					}
 			}
 
-			if(c == KEY_ENTER){
-				switch(opc){
-					case 1:
-					break;
-
-					default:
-						erase();
-					break;
-				}
-			}
-
-
 		}while(opc);
 	}while(c);
 
@@ -118,6 +133,7 @@ int main(){
 void cadastro(REGISTRO *dados){
 	erase();
 	mvprintw(0, 0, "-----REGISTRO DE DADOS-----\nNome: ");
+	refresh();
     fgets(dados->nome, sizeof(dados->nome), stdin);
     printw("RG: ");
     scanf("%ld", &dados->rg);
