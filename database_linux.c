@@ -6,8 +6,8 @@
 #include <locale.h>
 #include <ncurses.h>
 
-#define MIN 1
-#define MAX 6
+#define MIN 2
+#define MAX 7
 
 //STRUCT PARA ARMEZAR DADOS PARA CADASTRO
 typedef struct{
@@ -51,13 +51,19 @@ int main(){
 	
 	do{
 		erase();
-		mvprintw(0,0,"-----DATABASE EVIL CORP-----\n");
-		printw("1. Cadastro\n2. Whatever\n3. Whatever\n4. Whatever\n5. Whatever\n6. Whatever\n");
-		x = 0; y = 1; opc = 1;
+		box(stdscr, '|', '-'); 
+		mvprintw(1,1,"-----DATABASE EVIL CORP-----");
+		mvprintw(2,1,"1. Cadastro");
+		mvprintw(3,1,"2. Whatever");
+		mvprintw(4,1,"3. Whatever");
+		mvprintw(5,1,"4. Whatever");
+		mvprintw(6,1,"5. Whatever");
+		mvprintw(7,1,"6. Whatever");
+		x = 1; y = 2; opc = 2;
 		refresh();
 		do{
-			mvprintw(7,0,"OPC: %hd", opc);
-			mvprintw(8,0,"C: %hd", c);
+			mvprintw(8,1,"OPC: %hd", opc);
+			mvprintw(9,1,"C: %hd", c);
 			move(y,x);
 			c = getch();
 
@@ -69,7 +75,7 @@ int main(){
 			if(c == KEY_F(2)){
 				erase();
 				mvprintw(0, 0, "MENU DE AJUDA");
-				x = 0, y = 1, opc = 0;
+				x = 1, y = 2, opc = 0;
 				refresh();
 				getch();
 			}
@@ -101,7 +107,7 @@ int main(){
 
 			switch(c){
 				case KEY_UP:
-					if(opc>1){
+					if(opc>MIN){
 						opc--;
 						y--;
 					}
@@ -113,7 +119,7 @@ int main(){
 				break;
 
 				case KEY_DOWN:
-					if(opc<6){
+					if(opc<MAX){
 						opc++;
 						y++;
 					}
