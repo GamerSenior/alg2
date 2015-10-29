@@ -9,17 +9,48 @@
 #define MIN 1
 #define MAX 6
 
+//STRUCT PARA ARMEZAR DADOS PARA CADASTRO
+typedef struct{
+    char nome[50];
+    long int rg;
+    char cpf[11];
+    unsigned short idade;
+    float alt;
+}REGISTRO;
+
+REGISTRO dados;
+
+//Inicialização da função cadastro
+void cadastro(REGISTRO *dados);
+
 int main(){
 	short c, opc, x, y;
+
+	char path[] = "data/";
+    char pathA[] = "data/dados.bin";
 
 	setlocale(LC_ALL, "");
 	initscr();
 	raw();
 	noecho();
 	keypad(stdscr, TRUE);
+
+	FILE *data;
+
+    if(!mkdir(path, 0777)){
+        printf("Pasta \"data\" nao encontrada.\nCriando diretório...\n");
+    }
+
+    if((data = fopen(pathA, "r+"))==NULL){
+        printf("Não foi possivel encontrar o arquivo dados.bin!\nUm novo arquivo será criado...\n");
+        if((data = fopen(pathA, "w+"))==NULL){
+            printf("Não foi possivel criar o arquivo.\nO programa será finalizado em breve!\n");
+            exit(1);
+        }
+    }
 	
 	do{
-		system("clear");
+		erase();
 		mvprintw(0,0,"-----DATABASE EVIL CORP-----\n");
 		printw("1. Cadastro\n2. Whatever\n3. Whatever\n4. Whatever\n5. Whatever\n6. Whatever");
 		x = 0; y = 1; opc = 1;
@@ -34,7 +65,7 @@ int main(){
 			}
 
 			if(c == KEY_F(2)){
-				system("clear");
+				erase();
 				mvprintw(0, 0, "MENU DE AJUDA");
 				x = 0, y = 1, opc = 0;
 				refresh();
@@ -64,9 +95,37 @@ int main(){
 						y=MIN;
 					}
 			}
+
+			if(c == KEY_ENTER){
+				switch(opc){
+					case 1:
+					break;
+
+					default:
+						erase();
+					break;
+				}
+			}
+
+
 		}while(opc);
 	}while(c);
 
 	endwin();
 	return 0;
+}
+
+void cadastro(REGISTRO *dados){
+	erase();
+	mvprintw(0, 0, "-----REGISTRO DE DADOS-----\nNome: ");
+    fgets(dados->nome, sizeof(dados->nome), stdin);
+    printw("RG: ");
+    scanf("%ld", &dados->rg);
+    fflush(stdin);
+    printw("CPF: ");
+    fgets(dados->cpf, sizeof(dados->cpf), stdin);
+    printw("Altura: ");
+    scanf("%f", &dados->alt);
+    printw("Idade: ");
+    scanf("%hd", &dados->idade);
 }
