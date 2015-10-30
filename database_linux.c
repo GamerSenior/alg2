@@ -1,3 +1,7 @@
+/*-----------------------------------------
+| gcc database_linux.c -lncurses database |
+-----------------------------------------*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,9 +29,11 @@ void cadastro(REGISTRO *dados);
 
 int main(){
 	short c, opc, x, y;
+	char buf[1000];
 
 	char path[] = "data/";
     char pathA[] = "data/dados.bin";
+    char pathH[] = "data/help.txt";
 
 	setlocale(LC_ALL, "");
 	initscr();
@@ -36,15 +42,16 @@ int main(){
 	keypad(stdscr, TRUE);
 
 	FILE *data;
+	FILE *help;
 
     if(!mkdir(path, 0777)){
-        printf("Pasta \"data\" nao encontrada.\nCriando diretório...\n");
+        printw("Pasta \"data\" nao encontrada.\nCriando diretório...\n");
     }
 
-    if((data = fopen(pathA, "r+"))==NULL){
-        printf("Não foi possivel encontrar o arquivo dados.bin!\nUm novo arquivo será criado...\n");
-        if((data = fopen(pathA, "w+"))==NULL){
-            printf("Não foi possivel criar o arquivo.\nO programa será finalizado em breve!\n");
+    if((data = fopen(pathA, "rb+"))==NULL){
+        printw("Não foi possivel encontrar o arquivo dados.bin!\nUm novo arquivo será criado...\n");
+        if((data = fopen(pathA, "wb+"))==NULL){
+            printw("Não foi possivel criar o arquivo.\nO programa será finalizado em breve!\n");
             exit(1);
         }
     }
@@ -74,7 +81,14 @@ int main(){
 
 			if(c == KEY_F(2)){
 				erase();
-				mvprintw(0, 0, "MENU DE AJUDA");
+				if((help = fopen(pathH, "r"))==NULL){
+					printw("Nao foi possivel abrir o arquivo de ajuda.\nVerifique se o mesmo se encontra na pasta \"data\"");
+				}
+				move(0,0);
+				while(fgets(buf, 1000, help))
+					printw("%s", buf);
+
+				fclose(help);
 				x = 1, y = 2, opc = 0;
 				refresh();
 				getch();
@@ -134,6 +148,7 @@ int main(){
 	}while(c);
 
 	endwin();
+	fclose(data);
 	return 0;
 }
 
