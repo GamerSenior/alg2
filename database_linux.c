@@ -181,7 +181,7 @@ void cadastro(REGISTRO *dados){
     scanw("%f", &dados->alt);
     printw("Idade: ");
     scanw("%hd", &dados->idade);
-	fwrite(dados, sizeof(dados), 1, usr);
+	fwrite(dados, sizeof(*dados), 1, usr);
 	fclose(usr);
     noecho();
 }
