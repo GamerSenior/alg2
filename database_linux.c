@@ -1,6 +1,6 @@
-/*-----------------------------------------
-| gcc database_linux.c -lncurses database |
------------------------------------------*/
+/*--------------------------------------------
+| gcc database_linux.c -lncurses -o database |
+--------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -175,7 +175,6 @@ void cadastro(REGISTRO *dados){
     }
     printw("RG: ");
     scanw("%ld", &dados->rg);
-    fflush(stdin);
     printw("CPF: ");
     getnstr(dados->cpf, sizeof(dados->cpf));
     printw("Altura: ");
