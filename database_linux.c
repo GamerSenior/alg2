@@ -99,7 +99,6 @@ int main(){
 					case 2:
 						erase();
 						cadastro(&dados);
-						fwrite(&dados, sizeof(dados), 1, data);
 						getch();
 						opc=0;
 					break;
@@ -155,9 +154,25 @@ int main(){
 void cadastro(REGISTRO *dados){
 	erase();
 	echo();
+	char path[50] = "data/";
+	char ans;
+	FILE *usr;
 	mvprintw(0, 0, "-----REGISTRO DE DADOS-----\nNome: ");
 	refresh();
     getnstr(dados->nome, sizeof(dados->nome));
+    strcat(path, dados->nome);
+    if((usr = fopen(path, "rb")) != NULL){
+    	printw("Já existe um cadastro com esse nome... Deseja sobreescrever? (S/N)\n");
+    	do{
+    		ans = toupper(getch());
+    	}while(ans != 'S' && ans != 'N');
+    	if(ans=='S'){
+    		if((usr = fopen(path, "wb")) == NULL)
+    			printw("Problema ao gerar arquivo ou privilegios insulficientes!\n");
+    	}    	
+    }else{
+    	usr = fopen(path, "wb");
+    }
     printw("RG: ");
     scanw("%ld", &dados->rg);
     fflush(stdin);
@@ -167,5 +182,7 @@ void cadastro(REGISTRO *dados){
     scanw("%f", &dados->alt);
     printw("Idade: ");
     scanw("%hd", &dados->idade);
+	fwrite(dados, sizeof(dados), 1, usr);
+	fclose(usr);
     noecho();
 }
