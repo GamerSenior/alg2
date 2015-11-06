@@ -26,6 +26,7 @@ REGISTRO dados;
 
 //Inicialização da função cadastro
 void cadastro(REGISTRO *dados);
+void gerenciar();
 
 int main(){
 	short c, opc, x, y;
@@ -61,7 +62,7 @@ int main(){
 		box(stdscr, '|', '-'); 
 		mvprintw(1,1,"-----DATABASE EVIL CORP-----");
 		mvprintw(2,1,"1. Cadastro");
-		mvprintw(3,1,"2. Whatever");
+		mvprintw(3,1,"2. Gerenciar Cadastro");
 		mvprintw(4,1,"3. Whatever");
 		mvprintw(5,1,"4. Whatever");
 		mvprintw(6,1,"5. Whatever");
@@ -105,8 +106,7 @@ int main(){
 
 					case 3:
 						erase();
-						printw("TESTE");
-						getch();
+						gerenciar();
 						opc=0;
 					break;
 
@@ -151,6 +151,82 @@ int main(){
 	return 0;
 }
 
+void gerenciar(){
+	short c, opc, x, y;
+	char fileName[25], path[50] = "data/";
+	char name[25];
+	do{
+		erase();
+		mvprintw(0,0,"Gerenciamento de Cadastros\n1. Mover\n2. Apagar\n3. Voltar");
+		x = 0; y = 1; opc = 1;
+		refresh();
+		do{
+			move(y,x);
+			c = getch();
+
+			if(c == 'Q' || c == 'q'){
+				opc=0;
+				c=0;
+			}
+			
+			if(c == '\n'){	
+				switch(opc){
+				 	case 1:
+					 break;
+
+					case 2:
+						erase();
+				 		mvprintw(0,0,"Digite o nome do cadastro que deseja deletar (case sensitive): ");
+				 		echo();
+				 		getnstr(fileName, 25);
+				 		strcat(path, fileName);
+				 		printw("Caminho: %s", path);
+				 		noecho();
+				 		if((remove(fileName))==0){
+				 			printw("Arquivo removido com sucesso");
+				 		}else{
+				 			printw("Erro ao remover o arquivo ou nome incorreto. Tente novamente.");
+				 		}
+				 		getch();
+				 		opc = 0;
+				 	break;
+
+				 	case 3:
+				 	opc=0;
+				 	c=0;
+				 	break;
+				}
+			}
+
+			switch(c){
+				case KEY_UP:
+					if(opc>1){
+						opc--;
+						y--;
+					}
+
+					else{
+						opc=3;
+						y=3;
+					}
+				break;
+
+				case KEY_DOWN:
+					if(opc<3){
+						opc++;
+						y++;
+					}
+					else{
+						opc=1;
+						y=1;
+					}
+			}
+
+		}while(opc);
+	}while(c);
+
+}
+
 void cadastro(REGISTRO *dados){
 	erase();
 	echo();
@@ -162,7 +238,7 @@ void cadastro(REGISTRO *dados){
     getnstr(dados->nome, sizeof(dados->nome));
     strcat(path, dados->nome);
     if((usr = fopen(path, "rb")) != NULL){
-    	printw("Já existe um cadastro com esse nome... Deseja sobreescrever? (S/N)\n");
+    	printw("Ja existe um cadastro com esse nome. Deseja sobreescrever? (S/N)\n");
     	do{
     		ans = toupper(getch());
     	}while(ans != 'S' && ans != 'N');
@@ -173,14 +249,21 @@ void cadastro(REGISTRO *dados){
     }else{
     	usr = fopen(path, "wb");
     }
-    printw("RG: ");
-    scanw("%ld", &dados->rg);
-    printw("CPF: ");
-    getnstr(dados->cpf, sizeof(dados->cpf));
-    printw("Altura: ");
-    scanw("%f", &dados->alt);
-    printw("Idade: ");
-    scanw("%hd", &dados->idade);
+    do{
+	    printw("\nRG: ");
+	    scanw("%ld", &dados->rg);
+	    printw("CPF: ");
+	    getnstr(dados->cpf, sizeof(dados->cpf));
+	    printw("Altura: ");
+	    scanw("%f", &dados->alt);
+	    printw("Idade: ");
+	    scanw("%hd", &dados->idade);
+
+	    printw("Os dados estão corretos? (S/N)\n");
+	    do{
+	    	ans = toupper(getch());
+	    }while(ans != 'S' && ans != 'N');
+	}while(ans != 'S');
 	fwrite(dados, sizeof(*dados), 1, usr);
 	fclose(usr);
     noecho();
