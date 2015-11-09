@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <locale.h>
 #include <ncurses.h>
+#include <dirent.h>
 
 #define MIN 2
 #define MAX 7
@@ -27,6 +28,7 @@ REGISTRO dados;
 //Inicialização da função cadastro
 void cadastro(REGISTRO *dados);
 void gerenciar();
+void pastas();
 
 int main(){
 	short c, opc, x, y;
@@ -62,8 +64,8 @@ int main(){
 		box(stdscr, '|', '-'); 
 		mvprintw(1,1,"-----DATABASE EVIL CORP-----");
 		mvprintw(2,1,"1. Cadastrar");
-		mvprintw(3,1,"2. Gerenciar Cadastro");
-		mvprintw(4,1,"3. Whatever");
+		mvprintw(3,1,"2. Gerenciar cadastros");
+		mvprintw(4,1,"3. Gerenciar pastas");
 		mvprintw(5,1,"4. Whatever");
 		mvprintw(6,1,"5. Whatever");
 		mvprintw(7,1,"6. Whatever");
@@ -110,6 +112,12 @@ int main(){
 						opc=0;
 					break;
 
+					case 4:
+						erase();
+						pastas();
+						opc=0;
+					break;
+
 					default:
 						erase();
 						mvprintw(0,0, "Opcao invalida ou ainda em construcao.");
@@ -149,6 +157,90 @@ int main(){
 	endwin();
 	fclose(data);
 	return 0;
+}
+
+void pastas(){
+	short c, opc, x, y, f;
+
+	do{
+		erase();
+		mvprintw(0, 0,"Gerenciamento de Pastas\n1. Criar\n2. Apagar\n");
+		char dirName[50] = "data/", buff[25];
+		x = 0; y = 1; opc = 1;
+		refresh();
+		do{
+			move(y, x);
+			c = getch();
+
+			if(c == 'Q' || c == 'q'){
+				opc = 0;
+				c = 0;
+			}
+
+			if(c == '\n'){
+				switch(opc){
+					case 1:
+						erase();
+						mvprintw(0, 0, "Nome da pasta: ");
+						echo();
+						getnstr(buff, 25);
+						strcat(dirName, buff);
+						noecho();
+						if(!mkdir(dirName, 0777))
+							printw("Criado diretório: %s", dirName);
+						strcpy(dirName, "data/");
+						opc=0;
+						getch();
+					break;
+
+					case 2:
+						erase();
+						mvprintw(0, 0, "Nome da Pasta: ");
+						echo();
+						getnstr(buff, 25);
+						strcat(dirName, buff);
+						noecho();
+						if(!rmdir(dirName))
+							printw("Pasta removida com sucesso!\n");
+						else
+							printw("Erro ao remover a pasta. Verifique se a mesma está vazia!\n");
+						strcpy(dirName, "data/");
+						opc=0;
+						getch();
+					break;
+
+					case 3:
+					opc = 0;
+					c = 0;
+					break;
+				}
+			}
+
+			switch(c){
+				case KEY_UP:
+					if(opc>1){
+						opc--;
+						y--;
+					}
+
+					else{
+						opc=2;
+						y=2;
+					}
+				break;
+
+				case KEY_DOWN:
+					if(opc<2){
+						opc++;
+						y++;
+					}
+					else{
+						opc=1;
+						y=1;
+					}
+			}
+		}while(opc);
+	}while(c);
 }
 
 void gerenciar(){
