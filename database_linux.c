@@ -180,7 +180,7 @@ void gerenciar(){
 				 		echo();
 				 		getnstr(fileName, 25);
 				 		strcat(path, fileName);
-				 		printw("Caminho: %s", path);
+				 		printw("Caminho: %s\n", path);
 				 		noecho();
 				 		if((remove(fileName))==0){
 				 			printw("Arquivo removido com sucesso");
