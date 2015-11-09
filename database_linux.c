@@ -61,7 +61,7 @@ int main(){
 		erase();
 		box(stdscr, '|', '-'); 
 		mvprintw(1,1,"-----DATABASE EVIL CORP-----");
-		mvprintw(2,1,"1. Cadastro");
+		mvprintw(2,1,"1. Cadastrar");
 		mvprintw(3,1,"2. Gerenciar Cadastro");
 		mvprintw(4,1,"3. Whatever");
 		mvprintw(5,1,"4. Whatever");
@@ -152,7 +152,7 @@ int main(){
 }
 
 void gerenciar(){
-	short c, opc, x, y;
+	short c, opc, x, y, f;
 	char fileName[25], path[50] = "data/";
 	char name[25];
 	do{
@@ -182,13 +182,15 @@ void gerenciar(){
 				 		strcat(path, fileName);
 				 		printw("Caminho: %s\n", path);
 				 		noecho();
-				 		if((remove(fileName))==0){
+				 		f = remove(path);
+				 		if(f == 0){
 				 			printw("Arquivo removido com sucesso");
 				 		}else{
 				 			printw("Erro ao remover o arquivo ou nome incorreto. Tente novamente.");
 				 		}
 				 		getch();
 				 		opc = 0;
+				 		strcpy(path, "data/");
 				 	break;
 
 				 	case 3:
