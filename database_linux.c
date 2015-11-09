@@ -27,6 +27,7 @@ REGISTRO dados;
 
 //Inicialização da função cadastro
 void cadastro(REGISTRO *dados);
+void lerCadastro(REGISTRO *dados);
 void gerenciar();
 void pastas();
 
@@ -38,11 +39,15 @@ int main(){
     char pathA[] = "data/dados.bin";
     char pathH[] = "data/help.txt";
 
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "Portuguese");
 	initscr();
 	raw();
 	noecho();
 	keypad(stdscr, TRUE);
+
+	int col, row;
+	getmaxyx(stdscr, row, col);
+
 
 	FILE *data;
 	FILE *help;
@@ -64,9 +69,9 @@ int main(){
 		box(stdscr, '|', '-'); 
 		mvprintw(1,1,"-----DATABASE EVIL CORP-----");
 		mvprintw(2,1,"1. Cadastrar");
-		mvprintw(3,1,"2. Gerenciar cadastros");
-		mvprintw(4,1,"3. Gerenciar pastas");
-		mvprintw(5,1,"4. Whatever");
+		mvprintw(3,1,"2. Visualizar cadastros");
+		mvprintw(4,1,"3. Gerenciar cadastros");
+		mvprintw(5,1,"4. Gerenciar pastas");
 		mvprintw(6,1,"5. Whatever");
 		mvprintw(7,1,"6. Whatever");
 		x = 1; y = 2; opc = 2;
@@ -88,8 +93,12 @@ int main(){
 					printw("Nao foi possivel abrir o arquivo de ajuda.\nVerifique se o mesmo se encontra na pasta \"data\"");
 				}
 				move(0,0);
-				while(fgets(buf, 1000, help))
-					printw("%s", buf);
+
+				row = 0;
+				while(fgets(buf, 1000, help)){
+					mvprintw(row,(col-strlen(buf))/2,"%s", buf);
+					row++;
+				}
 
 				fclose(help);
 				x = 1, y = 2, opc = 0;
@@ -108,11 +117,17 @@ int main(){
 
 					case 3:
 						erase();
-						gerenciar();
+						lerCadastro(&dados);
 						opc=0;
 					break;
 
 					case 4:
+						erase();
+						gerenciar();
+						opc=0;
+					break;
+
+					case 5:
 						erase();
 						pastas();
 						opc=0;
@@ -164,7 +179,7 @@ void pastas(){
 
 	do{
 		erase();
-		mvprintw(0, 0,"Gerenciamento de Pastas\n1. Criar\n2. Apagar\n");
+		mvprintw(0, 0,"Gerenciamento de Pastas\n1. Criar\n2. Apagar\n3. Voltar");
 		char dirName[50] = "data/", buff[25];
 		x = 0; y = 1; opc = 1;
 		refresh();
@@ -224,13 +239,13 @@ void pastas(){
 					}
 
 					else{
-						opc=2;
-						y=2;
+						opc=3;
+						y=3;
 					}
 				break;
 
 				case KEY_DOWN:
-					if(opc<2){
+					if(opc<3){
 						opc++;
 						y++;
 					}
@@ -246,7 +261,7 @@ void pastas(){
 void gerenciar(){
 	short c, opc, x, y, f;
 	char fileName[25], path[50] = "data/";
-	char name[25];
+	char buffer[25], path2[50] = "data/";
 	do{
 		erase();
 		mvprintw(0,0,"Gerenciamento de Cadastros\n1. Mover\n2. Apagar\n3. Voltar");
@@ -261,9 +276,27 @@ void gerenciar(){
 				c=0;
 			}
 			
-			if(c == '\n'){	
+			if(c == '\n'){
 				switch(opc){
 				 	case 1:
+				 		erase();
+				 		mvprintw(0,0, "Digite o cadastro que deseja mover: ");
+				 		echo();
+				 		getnstr(fileName, 25);
+				 		strcat(path, fileName);
+				 		printw("Digite o destino do arquivo: ");
+				 		getnstr(buffer, 25);
+				 		strcat(path2, buffer);
+				 		strcat(path2, fileName);
+				 		if(!(rename(path, path2)))
+				 			printw("Arquivo movido com sucesso!");
+				 		else
+				 			printw("Erro ao mover arquivo!");
+				 		noecho();
+				 		getch();
+				 		opc = 0;
+				 		strcpy(path, "data/");
+				 		strcpy(path2, "data/");
 					 break;
 
 					case 2:
@@ -361,4 +394,23 @@ void cadastro(REGISTRO *dados){
 	fwrite(dados, sizeof(*dados), 1, usr);
 	fclose(usr);
     noecho();
+}
+
+void lerCadastro(REGISTRO *dados){
+	char path[50] = "data/", buffer[25];
+	FILE *usr;
+	mvprintw(0, 0, "Digite o nome/caminho do arquivo que deseja visualizar: ");
+	echo();
+	getnstr(buffer, 25);
+	noecho();
+	strcat(path, buffer);
+
+	if((usr = fopen(path, "rb"))==NULL){
+		printw("Erro ao abrir arquivo, tente novamente!");
+		fclose(usr);
+	}
+
+	fread(dados, sizeof(*dados), 1, usr);
+	printw("Nome: %s\nRG: %ld\nCPF: %s\nAltura: %.2f\nIdade: %hd\n", dados->nome, dados->rg, dados->cpf, dados->alt, dados->idade);
+    getch();
 }
